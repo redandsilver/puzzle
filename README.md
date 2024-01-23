@@ -76,5 +76,5 @@ ab를 입력하면 abc, acer 등 ab가 포함된 것들이 조회된다.
 
 # ERD
 [ERD](https://www.erdcloud.com/d/Mrm5euvBFWaHq6Djd)
-![image](https://github.com/redandsilver/puzzle/assets/129943670/7133c803-7294-4327-a3c5-cfafb7c63d26)
+![image](https://github.com/redandsilver/puzzle/assets/129943670/fb5aeac5-4eae-43d8-9cc7-dede1b85403c)
 
