@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import net.nurigo.sdk.message.model.Message;
 import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
 import net.nurigo.sdk.message.service.DefaultMessageService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -20,6 +21,8 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class AuthService {
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
+
     private final DefaultMessageService messageService;
     private final Message message;
     @Transactional
@@ -27,6 +30,7 @@ public class AuthService {
         if(memberRepository.existsByPhoneNumber(form.getPhoneNumber())){
             throw new CustomException(ErrorCode.ALREADY_EXIST_PHONE_NUMBER);
         }
+        form.setPassword(this.passwordEncoder.encode(form.getPassword()));
         String code = getRandomCode();
         Member member = memberRepository.save(form.toEntity());
         changeMemberVerificationCode(member,code);
