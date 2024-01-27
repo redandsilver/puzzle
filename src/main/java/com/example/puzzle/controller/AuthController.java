@@ -20,11 +20,13 @@ public class AuthController {
     }
     @PostMapping("/sendSMS")
     public ResponseEntity<String> sendSMS (@RequestParam String phoneNumber){
-        return ResponseEntity.ok(authService.sendSMS(phoneNumber));
+        authService.sendSMS(phoneNumber);
+        return ResponseEntity.ok("인증번호를 발송하였습니다.");
     }
     @PostMapping("/verify")
     public ResponseEntity<String> verifyCode
             (@RequestParam String phoneNumber, @RequestParam String code){
-        return ResponseEntity.ok(authService.verifyCode(phoneNumber,code));
+        authService.verifyCode(phoneNumber,code);
+        return ResponseEntity.ok("인증완료.");
     }
 }
