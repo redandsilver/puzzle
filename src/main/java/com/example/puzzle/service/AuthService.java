@@ -9,6 +9,7 @@ import com.example.puzzle.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import net.nurigo.sdk.message.model.Message;
 import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
+import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import net.nurigo.sdk.message.service.DefaultMessageService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,9 +31,9 @@ public class AuthService {
         if(memberRepository.existsByPhoneNumber(form.getPhoneNumber())){
             throw new CustomException(ErrorCode.ALREADY_EXIST_PHONE_NUMBER);
         }
-        form.setPassword(this.passwordEncoder.encode(form.getPassword()));
         String code = getRandomCode();
-        Member member = memberRepository.save(form.toEntity());
+        String encodedPassword = this.passwordEncoder.encode(form.getPassword());
+        Member member = memberRepository.save(form.toEntity(encodedPassword));
         changeMemberVerificationCode(member,code);
         return member;
     }
@@ -47,18 +48,16 @@ public class AuthService {
         return RandomStringUtils.random(10,true,true);
     }
 
-    public String sendSMS(String phoneNumber) {
+    public SingleMessageSentResponse sendSMS(String phoneNumber) {
         Member member = memberRepository.findByPhoneNumber(phoneNumber).orElseThrow(
                 ()-> new CustomException(ErrorCode.NOT_EXIST_PHONE_NUMBER)
         );
         message.setTo(phoneNumber);
         message.setText(message.getText()+member.getVerificationCode());
-        messageService.sendOne(new SingleMessageSendingRequest(message));
-
-        return "발송완료";
+        return messageService.sendOne(new SingleMessageSendingRequest(message));
     }
     @Transactional
-    public String verifyCode(String phoneNumber, String code) {
+    public void verifyCode(String phoneNumber, String code) {
         Member member = memberRepository.findByPhoneNumber(phoneNumber).orElseThrow(
                 ()-> new CustomException(ErrorCode.NOT_EXIST_PHONE_NUMBER)
         );
@@ -70,6 +69,5 @@ public class AuthService {
         }else{
             throw new CustomException(ErrorCode.WRONG_CODE);
         }
-        return "인증 완료";
     }
 }

@@ -17,10 +17,10 @@ public class Auth {
         private String phoneNumber;
         private String profileImageUrl;
 
-        public Member toEntity(){
+        public Member toEntity(String encodedPassword){
             return Member.builder()
                     .nickname(this.nickname)
-                    .password(this.password)
+                    .password(encodedPassword)
                     .phoneNumber(this.phoneNumber)
                     .profileImageUrl(this.profileImageUrl)
                     .build();
