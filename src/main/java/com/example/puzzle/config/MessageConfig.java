@@ -10,15 +10,15 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MessageConfig {
     @Value("${coolsms.api.sender}")
-    String SENDER;
+    private String sender;
     @Value("${coolsms.api.content}")
-    String CONTENT;
+    private String content;
 
     @Bean
     public Message MessageConfig(){
         Message message = new Message();
-        message.setFrom(SENDER);
-        message.setText(CONTENT);
+        message.setFrom(sender);
+        message.setText(content);
         return message;
     }
 }

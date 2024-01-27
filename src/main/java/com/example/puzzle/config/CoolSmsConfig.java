@@ -9,13 +9,14 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class CoolSmsConfig {
     @Value("${coolsms.api.key}")
-    String API_KEY;
+    private String apiKey;
     @Value("${coolsms.api.secret}")
-    String API_SECRET;
+    private String apiSecret;
 
     @Bean
     public DefaultMessageService CoolSmsConfig(){
-        return NurigoApp.INSTANCE.initialize(API_KEY, API_SECRET, "https://api.coolsms.co.kr");
+
+        return NurigoApp.INSTANCE.initialize(apiKey, apiSecret, "https://api.coolsms.co.kr");
     }
 
 }
