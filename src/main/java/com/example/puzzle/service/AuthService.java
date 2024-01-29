@@ -1,16 +1,24 @@
 package com.example.puzzle.service;
 
 import com.example.puzzle.domain.model.Auth;
+import com.example.puzzle.domain.model.constants.Role;
 import com.example.puzzle.domain.model.entity.Member;
 import com.example.puzzle.domain.repository.MemberRepository;
 import com.example.puzzle.exception.CustomException;
 import com.example.puzzle.exception.ErrorCode;
 
+import com.example.puzzle.security.TokenProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.nurigo.sdk.message.model.Message;
 import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import net.nurigo.sdk.message.service.DefaultMessageService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -20,12 +28,14 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+@Slf4j
+public class AuthService implements UserDetailsService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
     private final DefaultMessageService messageService;
     private final Message message;
+
     @Transactional
     public Member signUp (Auth.SignUp form){
         if(memberRepository.existsByPhoneNumber(form.getPhoneNumber())){
@@ -61,13 +71,36 @@ public class AuthService {
         Member member = memberRepository.findByPhoneNumber(phoneNumber).orElseThrow(
                 ()-> new CustomException(ErrorCode.NOT_EXIST_PHONE_NUMBER)
         );
-        if(member.getVerificationCode().equals(code)){
-            if(member.getVerifyExpiredAt().isBefore(LocalDateTime.now())){
-                throw new CustomException(ErrorCode.EXPIRED_CODE);
-            }
-            member.setVerify(true);
-        }else{
+        if(!member.getVerificationCode().equals(code)){
             throw new CustomException(ErrorCode.WRONG_CODE);
         }
+        if(member.getVerifyExpiredAt().isBefore(LocalDateTime.now())){
+            throw new CustomException(ErrorCode.EXPIRED_CODE);
+        }
+        member.setVerify(true);
+        member.addRole(String.valueOf(Role.ROLE_MEMBER));
     }
+
+    public Member authenticate(Auth.SignIn form) {
+        var user = memberRepository.findByNickname(form.getNickname())
+                .orElseThrow(()->new CustomException(ErrorCode.WRONG_LOGIN_INFO));
+        if(!this.passwordEncoder.matches(form.getPassword(), user.getPassword())){
+            throw new CustomException(ErrorCode.WRONG_LOGIN_INFO);
+        }
+        if(!user.verified()){
+            throw new CustomException(ErrorCode.NOT_VERIFIED_USER);
+        }
+        return user;
+    }
+
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        log.info("===userdetail 실행===");
+        return this.memberRepository.findByNickname(username)
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("couldn't find user -> "+username));
+    }
+
+
 }

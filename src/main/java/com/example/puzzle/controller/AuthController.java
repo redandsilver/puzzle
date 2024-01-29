@@ -2,16 +2,25 @@ package com.example.puzzle.controller;
 
 import com.example.puzzle.domain.member.MemberDto;
 import com.example.puzzle.domain.model.Auth;
+import com.example.puzzle.security.TokenProvider;
 import com.example.puzzle.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
+
+import static com.example.puzzle.security.JwtAuthenticationFilter.TOKEN_HEADER;
+import static com.example.puzzle.security.JwtAuthenticationFilter.TOKEN_PREFIX;
 
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    private final TokenProvider tokenProvider;
 
     @PostMapping("/signup")
     public ResponseEntity<String> signUp (@RequestBody Auth.SignUp form){
@@ -23,10 +32,18 @@ public class AuthController {
         authService.sendSMS(phoneNumber);
         return ResponseEntity.ok("인증번호를 발송하였습니다.");
     }
-    @PostMapping("/verify")
+    @PutMapping("/verify")
     public ResponseEntity<String> verifyCode
             (@RequestParam String phoneNumber, @RequestParam String code){
         authService.verifyCode(phoneNumber,code);
         return ResponseEntity.ok("인증완료.");
+    }
+
+    @PostMapping("/signin")
+    public ResponseEntity<String> signIn (@RequestBody Auth.SignIn form, HttpServletResponse response){
+        var member = authService.authenticate(form);
+        var token = tokenProvider.generateToken(member.getUsername(), member.getRoles());
+        response.setHeader(TOKEN_HEADER, TOKEN_PREFIX+token);
+        return ResponseEntity.ok(token);
     }
 }
