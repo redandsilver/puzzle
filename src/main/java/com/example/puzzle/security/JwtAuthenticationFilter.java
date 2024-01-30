@@ -1,5 +1,11 @@
 package com.example.puzzle.security;
 
+import com.example.puzzle.domain.model.entity.Member;
+import com.example.puzzle.domain.model.entity.RefreshToken;
+import com.example.puzzle.domain.repository.MemberRepository;
+import com.example.puzzle.domain.repository.RefreshTokenRespository;
+import com.example.puzzle.exception.CustomException;
+import com.example.puzzle.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -14,6 +20,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
 
 @Slf4j
 @Component
@@ -22,6 +29,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public static final String TOKEN_HEADER = "Authorization";
     public static final String TOKEN_PREFIX = "Bearer ";
     private final TokenProvider tokenProvider;
+    private final RefreshTokenRespository refreshTokenRespository;
+    private final MemberRepository memberRepository;
 
 
     @Override
@@ -30,12 +39,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         if(SecurityContextHolder.getContext().getAuthentication() == null){
             String token = this.resolveTokenFromRequest(request);
-            if(StringUtils.hasText(token) && this.tokenProvider.validateToken(token)){
+            if(StringUtils.hasText(token)){
+                if(!tokenProvider.validateToken(token)){
+
+                    RefreshToken refreshToken = refreshTokenRespository.findByAccessToken(token)
+                            .orElseThrow(()-> new CustomException(ErrorCode.TOKEN_EXPIRED));
+                    Member member = memberRepository.findById(refreshToken.getUserId())
+                            .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
+                    // 토큰 재발급
+                    token = tokenProvider.generateToken(member.getUsername(),member.getRoles());
+                    refreshToken.updateRefreshToken(token);
+                }
                 // 토큰 유효성 검증
                 Authentication auth = this.tokenProvider.getAuthentication(token);
-                SecurityContextHolder.getContext().setAuthentication(auth);
                 log.info(String.format("[%s] -> %s",
                         this.tokenProvider.getUsername(token),request.getRequestURI()));
+                SecurityContextHolder.getContext().setAuthentication(auth);
+
             }
         }
         // filter가 연속적으로 실행이 되도록

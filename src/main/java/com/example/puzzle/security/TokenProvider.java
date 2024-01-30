@@ -1,11 +1,18 @@
 package com.example.puzzle.security;
 
+import com.example.puzzle.domain.model.entity.Member;
+import com.example.puzzle.domain.model.entity.RefreshToken;
+import com.example.puzzle.domain.repository.MemberRepository;
+import com.example.puzzle.domain.repository.RefreshTokenRespository;
+import com.example.puzzle.exception.CustomException;
+import com.example.puzzle.exception.ErrorCode;
 import com.example.puzzle.service.AuthService;
-import com.example.puzzle.service.MemberService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,15 +23,19 @@ import org.springframework.util.StringUtils;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class TokenProvider {
-    private static final long TOKEN_EXPIRE_TIME = 1000*60*60*2; // 2 hour
+    private static final long TOKEN_EXPIRE_TIME = 1000*60*60; // 1 hour
     private static final String KEY_ROLES = "roles";
 
     private final AuthService authService;
-
+    private final RefreshTokenRespository refreshTokenRespository;
+    private final MemberRepository memberRepository;
     @Value("{spring.jwt.secret}")
     private String secretKey;
 
@@ -49,6 +60,16 @@ public class TokenProvider {
                 .compact();
     }
 
+    public void generateRefreshToken(Member member, String accessToken){
+
+        var refreshToken = UUID.randomUUID().toString();
+        RefreshToken redis =
+                new RefreshToken(refreshToken,member.getId(),accessToken);
+        refreshTokenRespository.save(redis);
+    }
+
+
+
     public Authentication getAuthentication(String jwt){
         UserDetails userDetails
                 = this.authService.loadUserByUsername(this.getUsername(jwt));
@@ -62,17 +83,10 @@ public class TokenProvider {
         return this.parseClaims(token).getSubject();
     }
 
-    /**
-     * 토큰이 비었는가
-     * 토큰이 만료되었는가
-     * @param token
-     * @return
-     */
     public boolean validateToken(String token){
-        if(!StringUtils.hasText(token)) return false;
-
         var claims = this.parseClaims(token);
-        return !claims.getExpiration().before(new Date());
+        var now = new Date();
+        return !claims.getExpiration().before(now);
     }
 
     private Claims parseClaims(String token){

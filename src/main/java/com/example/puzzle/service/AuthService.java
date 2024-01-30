@@ -7,15 +7,12 @@ import com.example.puzzle.domain.repository.MemberRepository;
 import com.example.puzzle.exception.CustomException;
 import com.example.puzzle.exception.ErrorCode;
 
-import com.example.puzzle.security.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.nurigo.sdk.message.model.Message;
 import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import net.nurigo.sdk.message.service.DefaultMessageService;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -96,7 +93,6 @@ public class AuthService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.info("===userdetail 실행===");
         return this.memberRepository.findByNickname(username)
                 .orElseThrow(() ->
                         new UsernameNotFoundException("couldn't find user -> "+username));

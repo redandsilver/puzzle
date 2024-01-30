@@ -2,6 +2,8 @@ package com.example.puzzle.controller;
 
 import com.example.puzzle.domain.member.MemberDto;
 import com.example.puzzle.domain.model.Auth;
+import com.example.puzzle.domain.model.entity.RefreshToken;
+import com.example.puzzle.domain.repository.RefreshTokenRespository;
 import com.example.puzzle.security.TokenProvider;
 import com.example.puzzle.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -15,12 +17,14 @@ import javax.servlet.http.HttpServletResponse;
 import static com.example.puzzle.security.JwtAuthenticationFilter.TOKEN_HEADER;
 import static com.example.puzzle.security.JwtAuthenticationFilter.TOKEN_PREFIX;
 
+
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
     private final TokenProvider tokenProvider;
+    private final RefreshTokenRespository refreshTokenRespository;
 
     @PostMapping("/signup")
     public ResponseEntity<String> signUp (@RequestBody Auth.SignUp form){
@@ -42,8 +46,9 @@ public class AuthController {
     @PostMapping("/signin")
     public ResponseEntity<String> signIn (@RequestBody Auth.SignIn form, HttpServletResponse response){
         var member = authService.authenticate(form);
-        var token = tokenProvider.generateToken(member.getUsername(), member.getRoles());
-        response.setHeader(TOKEN_HEADER, TOKEN_PREFIX+token);
-        return ResponseEntity.ok(token);
+        var accessToken = tokenProvider.generateToken(member.getUsername(), member.getRoles());
+        tokenProvider.generateRefreshToken(member,accessToken);
+        response.setHeader(TOKEN_HEADER, TOKEN_PREFIX+accessToken);
+        return ResponseEntity.ok(accessToken);
     }
 }
