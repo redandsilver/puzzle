@@ -1,12 +1,16 @@
 package com.example.puzzle.service;
 
+import com.example.puzzle.config.util.RedisUtil;
 import com.example.puzzle.domain.model.Auth;
 import com.example.puzzle.domain.model.constants.Role;
 import com.example.puzzle.domain.model.entity.Member;
+import com.example.puzzle.domain.model.entity.RefreshToken;
 import com.example.puzzle.domain.repository.MemberRepository;
+import com.example.puzzle.domain.repository.RefreshTokenRepository;
 import com.example.puzzle.exception.CustomException;
 import com.example.puzzle.exception.ErrorCode;
 
+import com.example.puzzle.security.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.nurigo.sdk.message.model.Message;
@@ -21,17 +25,23 @@ import org.springframework.stereotype.Service;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import javax.transaction.Transactional;
+import java.util.Date;
 import java.time.LocalDateTime;
+
+
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class AuthService implements UserDetailsService {
     private final MemberRepository memberRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final RedisUtil redisUtil;
     private final PasswordEncoder passwordEncoder;
 
     private final DefaultMessageService messageService;
     private final Message message;
+
 
     @Transactional
     public Member signUp (Auth.SignUp form){
@@ -98,5 +108,10 @@ public class AuthService implements UserDetailsService {
                         new UsernameNotFoundException("couldn't find user -> "+username));
     }
 
-
+    public void logout(String token, Date expirateDate) {
+        RefreshToken refreshToken = refreshTokenRepository.findByAccessToken(token)
+                .orElseThrow(()-> new CustomException(ErrorCode.TOKEN_NOT_FOUND));
+        refreshTokenRepository.deleteById(refreshToken.getRefreshToken());
+        redisUtil.setBlackList(token, "access_token", expirateDate.getTime());
+    }
 }

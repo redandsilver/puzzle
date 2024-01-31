@@ -1,9 +1,9 @@
 package com.example.puzzle.security;
 
+import com.example.puzzle.config.util.RedisUtil;
 import com.example.puzzle.domain.model.entity.Member;
 import com.example.puzzle.domain.model.entity.RefreshToken;
-import com.example.puzzle.domain.repository.MemberRepository;
-import com.example.puzzle.domain.repository.RefreshTokenRespository;
+import com.example.puzzle.domain.repository.RefreshTokenRepository;
 import com.example.puzzle.exception.CustomException;
 import com.example.puzzle.exception.ErrorCode;
 import com.example.puzzle.service.AuthService;
@@ -12,30 +12,27 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class TokenProvider {
-    private static final long TOKEN_EXPIRE_TIME = 1000*60*60; // 1 hour
+    private static final long TOKEN_EXPIRE_TIME = 1000*60*30; // 30 min
     private static final String KEY_ROLES = "roles";
 
     private final AuthService authService;
-    private final RefreshTokenRespository refreshTokenRespository;
-    private final MemberRepository memberRepository;
+    private final RefreshTokenRepository refreshTokenRespository;
+    private final RedisUtil redisUtil;
     @Value("{spring.jwt.secret}")
     private String secretKey;
 
@@ -68,8 +65,6 @@ public class TokenProvider {
         refreshTokenRespository.save(redis);
     }
 
-
-
     public Authentication getAuthentication(String jwt){
         UserDetails userDetails
                 = this.authService.loadUserByUsername(this.getUsername(jwt));
@@ -89,7 +84,7 @@ public class TokenProvider {
         return !claims.getExpiration().before(now);
     }
 
-    private Claims parseClaims(String token){
+    public Claims parseClaims(String token){
         try{
             return Jwts.parser().setSigningKey(this.secretKey)
                     .parseClaimsJws(token).getBody();
@@ -99,5 +94,17 @@ public class TokenProvider {
         }
 
     }
+
+    public Date getExpiration(String token) {
+        return this.parseClaims(token).getExpiration();
+    }
+
+    public boolean isLogout(String token) {
+        if (redisUtil.hasKeyBlackList(token)){
+            return true;
+        }
+        return false;
+    }
+
 
 }

@@ -2,16 +2,14 @@ package com.example.puzzle.controller;
 
 import com.example.puzzle.domain.member.MemberDto;
 import com.example.puzzle.domain.model.Auth;
-import com.example.puzzle.domain.model.entity.RefreshToken;
-import com.example.puzzle.domain.repository.RefreshTokenRespository;
+import com.example.puzzle.security.JwtAuthenticationFilter;
 import com.example.puzzle.security.TokenProvider;
 import com.example.puzzle.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static com.example.puzzle.security.JwtAuthenticationFilter.TOKEN_HEADER;
@@ -24,7 +22,7 @@ import static com.example.puzzle.security.JwtAuthenticationFilter.TOKEN_PREFIX;
 public class AuthController {
     private final AuthService authService;
     private final TokenProvider tokenProvider;
-    private final RefreshTokenRespository refreshTokenRespository;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @PostMapping("/signup")
     public ResponseEntity<String> signUp (@RequestBody Auth.SignUp form){
@@ -51,4 +49,13 @@ public class AuthController {
         response.setHeader(TOKEN_HEADER, TOKEN_PREFIX+accessToken);
         return ResponseEntity.ok(accessToken);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout (HttpServletRequest request){
+        var token = jwtAuthenticationFilter.resolveTokenFromRequest(request);
+        var expirateDate = tokenProvider.getExpiration(token);
+        authService.logout(token,expirateDate);
+        return ResponseEntity.ok("로그아웃");
+    }
+
 }

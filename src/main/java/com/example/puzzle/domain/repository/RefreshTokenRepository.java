@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface RefreshTokenRespository extends CrudRepository<RefreshToken, Long> {
-    Optional<RefreshToken> findByAccessToken(String token);
+public interface RefreshTokenRepository extends CrudRepository<RefreshToken, String> {
+    Optional<RefreshToken> findByAccessToken(String accessToken);
+
+    void deleteById(String refreshToken);
 }

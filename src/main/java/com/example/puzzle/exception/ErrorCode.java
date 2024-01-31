@@ -13,6 +13,7 @@ public enum ErrorCode {
     NOT_VERIFIED_USER(HttpStatus.BAD_REQUEST, "인증되지 않은 회원입니다."),
     TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "토큰이 없습니다."),
     TOKEN_EXPIRED(HttpStatus.BAD_REQUEST, "다시 로그인 해주세요."),
+    ALREADY_LOGOUT_USER(HttpStatus.BAD_REQUEST, "이미 로그아웃한 회원입니다."),
     SEND_SMS_FAIL(HttpStatus.BAD_REQUEST, "발송 실패"),
     WRONG_CODE(HttpStatus.BAD_REQUEST, "인증코드가 다릅니다."),
     EXPIRED_CODE(HttpStatus.BAD_REQUEST, "유효시간이 지났습니다."),
