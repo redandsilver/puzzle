@@ -35,10 +35,8 @@ public class Member extends BaseEntity {
     private List<String> roles;
 
     public void addRole(String role){
-
         roles.add(role);
     }
-
     public boolean verified(){
         return isVerify;
     }

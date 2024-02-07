@@ -1,9 +1,6 @@
 package com.example.puzzle.service;
 
-import com.example.puzzle.domain.model.Auth;
-import com.example.puzzle.domain.model.entity.Member;
 import com.example.puzzle.domain.repository.MemberRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

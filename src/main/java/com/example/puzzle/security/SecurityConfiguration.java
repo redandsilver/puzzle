@@ -1,5 +1,6 @@
 package com.example.puzzle.security;
 
+import com.example.puzzle.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +22,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private final JwtAuthenticationFilter authenticationFilter;
-    private final TokenProvider tokenProvider;
 
     @Override
     protected void configure (HttpSecurity http) throws Exception{
@@ -48,5 +48,4 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public AuthenticationManager authenticationManager() throws Exception{
         return super.authenticationManagerBean();
     }
-
 }

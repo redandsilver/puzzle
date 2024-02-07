@@ -1,4 +1,4 @@
-package com.example.puzzle.domain.model;
+package com.example.puzzle.domain.model.entity.form;
 
 import com.example.puzzle.domain.model.entity.Member;
 import lombok.Data;

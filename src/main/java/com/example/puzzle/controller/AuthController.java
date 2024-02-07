@@ -1,10 +1,9 @@
 package com.example.puzzle.controller;
-
-import com.example.puzzle.domain.member.MemberDto;
-import com.example.puzzle.domain.model.Auth;
-import com.example.puzzle.security.JwtAuthenticationFilter;
+import com.example.puzzle.domain.dto.MemberDto;
+import com.example.puzzle.domain.model.entity.form.Auth;
 import com.example.puzzle.security.TokenProvider;
 import com.example.puzzle.service.AuthService;
+import com.example.puzzle.service.FilterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,17 +11,16 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import static com.example.puzzle.security.JwtAuthenticationFilter.TOKEN_HEADER;
-import static com.example.puzzle.security.JwtAuthenticationFilter.TOKEN_PREFIX;
-
-
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
     private final TokenProvider tokenProvider;
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final FilterService filterService;
+
+    private static final String TOKEN_HEADER = "Authorization";
+    private static final String TOKEN_PREFIX = "Bearer ";
 
     @PostMapping("/signup")
     public ResponseEntity<String> signUp (@RequestBody Auth.SignUp form){
@@ -52,16 +50,8 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<String> logout (HttpServletRequest request){
-        var token = jwtAuthenticationFilter.resolveTokenFromRequest(request);
+        var token = filterService.resolveTokenFromRequest(request);
         authService.logout(token);
         return ResponseEntity.ok("로그아웃");
     }
-
-    @PostMapping("/test")
-    public ResponseEntity<String> test (HttpServletRequest request){
-        var token = jwtAuthenticationFilter.resolveTokenFromRequest(request);
-        authService.test(token);
-        return ResponseEntity.ok("로그아웃");
-    }
-
 }

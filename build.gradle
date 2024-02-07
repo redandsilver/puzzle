@@ -37,6 +37,10 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'com.h2database:h2'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+	// json
+	implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
+
 	// embedded redis
 	implementation('it.ozimov:embedded-redis:0.7.3') {
 		exclude group: "org.slf4j", module: "slf4j-simple"
