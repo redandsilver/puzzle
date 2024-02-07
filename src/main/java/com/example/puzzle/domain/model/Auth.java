@@ -3,11 +3,14 @@ package com.example.puzzle.domain.model;
 import com.example.puzzle.domain.model.entity.Member;
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class Auth {
     @Data
     public static class SignIn{
-        private String email;
+        private String nickname;
         private String password;
     }
     @Data
@@ -23,6 +26,7 @@ public class Auth {
                     .password(encodedPassword)
                     .phoneNumber(this.phoneNumber)
                     .profileImageUrl(this.profileImageUrl)
+                    .roles(new ArrayList<String>())
                     .build();
         }
     }
