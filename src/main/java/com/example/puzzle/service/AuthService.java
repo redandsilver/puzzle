@@ -1,16 +1,17 @@
 package com.example.puzzle.service;
 
-import com.example.puzzle.config.util.RedisUtil;
+import com.example.puzzle.domain.member.MemberDto;
 import com.example.puzzle.domain.model.Auth;
 import com.example.puzzle.domain.model.constants.Role;
+import com.example.puzzle.domain.model.entity.LogoutToken;
 import com.example.puzzle.domain.model.entity.Member;
 import com.example.puzzle.domain.model.entity.RefreshToken;
+import com.example.puzzle.domain.repository.LogoutTokenRepository;
 import com.example.puzzle.domain.repository.MemberRepository;
 import com.example.puzzle.domain.repository.RefreshTokenRepository;
 import com.example.puzzle.exception.CustomException;
 import com.example.puzzle.exception.ErrorCode;
 
-import com.example.puzzle.security.TokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.nurigo.sdk.message.model.Message;
@@ -27,7 +28,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import javax.transaction.Transactional;
 import java.util.Date;
 import java.time.LocalDateTime;
-
+import java.util.UUID;
 
 
 @Service
@@ -36,7 +37,7 @@ import java.time.LocalDateTime;
 public class AuthService implements UserDetailsService {
     private final MemberRepository memberRepository;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final RedisUtil redisUtil;
+    private final LogoutTokenRepository logoutTokenRepository;
     private final PasswordEncoder passwordEncoder;
 
     private final DefaultMessageService messageService;
@@ -85,7 +86,6 @@ public class AuthService implements UserDetailsService {
             throw new CustomException(ErrorCode.EXPIRED_CODE);
         }
         member.setVerify(true);
-        member.addRole(String.valueOf(Role.ROLE_MEMBER));
     }
 
     public Member authenticate(Auth.SignIn form) {
@@ -103,15 +103,23 @@ public class AuthService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return this.memberRepository.findByNickname(username)
+        log.info(username);
+        return MemberDto.from(this.memberRepository.findByNickname(username)
                 .orElseThrow(() ->
-                        new UsernameNotFoundException("couldn't find user -> "+username));
+                        new UsernameNotFoundException("couldn't find user -> "+username)));
     }
 
-    public void logout(String token, Date expirateDate) {
+    public void logout(String token) {
+        log.info(token);
         RefreshToken refreshToken = refreshTokenRepository.findByAccessToken(token)
                 .orElseThrow(()-> new CustomException(ErrorCode.TOKEN_NOT_FOUND));
         refreshTokenRepository.deleteById(refreshToken.getRefreshToken());
-        redisUtil.setBlackList(token, "access_token", expirateDate.getTime());
+        logoutTokenRepository.save(new LogoutToken(UUID.randomUUID().toString(),token));
+    }
+
+    public void test(String token) {
+        RefreshToken refreshToken = refreshTokenRepository.findByAccessToken(token)
+                .orElseThrow(()-> new CustomException(ErrorCode.TOKEN_NOT_FOUND));
+
     }
 }

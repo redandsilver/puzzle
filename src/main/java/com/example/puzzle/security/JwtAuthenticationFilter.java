@@ -1,6 +1,5 @@
 package com.example.puzzle.security;
 
-import com.example.puzzle.config.util.RedisUtil;
 import com.example.puzzle.domain.model.entity.Member;
 import com.example.puzzle.domain.model.entity.RefreshToken;
 import com.example.puzzle.domain.repository.MemberRepository;
@@ -50,12 +49,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     RefreshToken refreshToken = refreshTokenRepository.findByAccessToken(token)
                             .orElseThrow(()-> new CustomException(ErrorCode.TOKEN_EXPIRED));
 
-                    Member member = memberRepository.findById(refreshToken.getUserId())
+                    Member member = memberRepository.findById(refreshToken.getMemberId())
                             .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
-
                     // 토큰 재발급
-                    token = tokenProvider.generateToken(member.getUsername(),member.getRoles());
-                    refreshToken.updateRefreshToken(token);
+                    token = tokenProvider.generateToken(member.getNickname(),member.getRoles());
+                    refreshTokenRepository.save(new RefreshToken(refreshToken.getRefreshToken(),token,refreshToken.getMemberId()));
                 }
                 // 토큰 유효성 검증
                 Authentication auth = this.tokenProvider.getAuthentication(token);

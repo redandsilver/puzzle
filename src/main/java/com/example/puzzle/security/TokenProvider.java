@@ -1,11 +1,9 @@
 package com.example.puzzle.security;
 
-import com.example.puzzle.config.util.RedisUtil;
 import com.example.puzzle.domain.model.entity.Member;
 import com.example.puzzle.domain.model.entity.RefreshToken;
+import com.example.puzzle.domain.repository.LogoutTokenRepository;
 import com.example.puzzle.domain.repository.RefreshTokenRepository;
-import com.example.puzzle.exception.CustomException;
-import com.example.puzzle.exception.ErrorCode;
 import com.example.puzzle.service.AuthService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -32,7 +30,8 @@ public class TokenProvider {
 
     private final AuthService authService;
     private final RefreshTokenRepository refreshTokenRespository;
-    private final RedisUtil redisUtil;
+    private final LogoutTokenRepository logoutTokenRepository;
+
     @Value("{spring.jwt.secret}")
     private String secretKey;
 
@@ -57,12 +56,10 @@ public class TokenProvider {
                 .compact();
     }
 
-    public void generateRefreshToken(Member member, String accessToken){
-
-        var refreshToken = UUID.randomUUID().toString();
-        RefreshToken redis =
-                new RefreshToken(refreshToken,member.getId(),accessToken);
-        refreshTokenRespository.save(redis);
+    public void generateRefreshToken(String accessToken, Long memberId){
+        RefreshToken token =
+                new RefreshToken(UUID.randomUUID().toString(),accessToken,memberId);
+        refreshTokenRespository.save(token);
     }
 
     public Authentication getAuthentication(String jwt){
@@ -100,11 +97,6 @@ public class TokenProvider {
     }
 
     public boolean isLogout(String token) {
-        if (redisUtil.hasKeyBlackList(token)){
-            return true;
-        }
-        return false;
+        return logoutTokenRepository.findByAccessToken(token).isPresent();
     }
-
-
 }

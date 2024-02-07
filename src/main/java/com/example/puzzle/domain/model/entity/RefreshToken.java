@@ -9,21 +9,19 @@ import org.springframework.data.redis.core.index.Indexed;
 
 import javax.transaction.Transactional;
 
-
 @Getter
 @AllArgsConstructor
-@RedisHash(value = "refreshToken", timeToLive = 60*60*24*3)
+// redis에서 long 타입의 아이디를 key로 사용하는 두 개의 엔티티가 있을때 key가 중복 될 수 있기 떄문에
+// value값을 prefix로 두어서 구분 지을 수 있다.
+// 실제 redis 값에는 "refreshtoken:refreshToken값"로 key 값이 지정된다.
+@RedisHash(value = "refreshtoken", timeToLive = 60*60*24*7)
 public class RefreshToken {
-
     @Id
     private String refreshToken;
-    private Long userId;
-
-
     @Indexed
     private String accessToken;
+    private Long memberId;
 
-    @Transactional
     public void updateRefreshToken(String accessToken){
         this.accessToken = accessToken;
     }

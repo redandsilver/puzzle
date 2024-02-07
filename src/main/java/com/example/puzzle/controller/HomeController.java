@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class HomeController {
     @GetMapping
     public ResponseEntity<String> gohome(){
-        log.info("member home {}:",SecurityContextHolder.getContext().getAuthentication().getPrincipal().getClass());
         return ResponseEntity.ok("home!");
     }
 }

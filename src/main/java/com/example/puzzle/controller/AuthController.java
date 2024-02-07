@@ -43,9 +43,9 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<String> signIn (@RequestBody Auth.SignIn form, HttpServletResponse response){
-        var member = authService.authenticate(form);
+        var member = MemberDto.from(authService.authenticate(form));
         var accessToken = tokenProvider.generateToken(member.getUsername(), member.getRoles());
-        tokenProvider.generateRefreshToken(member,accessToken);
+        tokenProvider.generateRefreshToken(accessToken, member.getId());
         response.setHeader(TOKEN_HEADER, TOKEN_PREFIX+accessToken);
         return ResponseEntity.ok(accessToken);
     }
@@ -53,8 +53,14 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<String> logout (HttpServletRequest request){
         var token = jwtAuthenticationFilter.resolveTokenFromRequest(request);
-        var expirateDate = tokenProvider.getExpiration(token);
-        authService.logout(token,expirateDate);
+        authService.logout(token);
+        return ResponseEntity.ok("로그아웃");
+    }
+
+    @PostMapping("/test")
+    public ResponseEntity<String> test (HttpServletRequest request){
+        var token = jwtAuthenticationFilter.resolveTokenFromRequest(request);
+        authService.test(token);
         return ResponseEntity.ok("로그아웃");
     }
 
