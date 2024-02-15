@@ -15,6 +15,6 @@ public class PieceDto {
     public static PieceDto from (Piece piece){
         return new PieceDto(
                 piece.getTitle(),
-                piece.getWriterName());
+                piece.getMember().getNickname());
     }
 }

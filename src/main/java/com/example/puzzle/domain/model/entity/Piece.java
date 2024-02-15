@@ -4,8 +4,9 @@ import com.example.puzzle.domain.model.entity.form.PieceForm;
 import lombok.*;
 import org.hibernate.envers.AuditOverride;
 import javax.persistence.*;
-import javax.transaction.Transactional;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -23,8 +24,27 @@ public class Piece extends BaseEntity{
     private String title;
     @Size(min = 1, max = 500)
     private String content;
-    private String writerName;
+
+    @ManyToOne
+    @JoinColumn(name="member_id")
+    private Member member;
     private boolean isSecret;
+
+    @OneToMany(mappedBy = "piece")
+    List<Comment> replies;
+    public static Piece from (PieceForm form){
+        return Piece.builder()
+                .title(form.getTitle())
+                .content(form.getContent())
+                .isSecret(form.isSecret())
+                .build();
+    }
+
+    public void addReply(Comment comment){
+        if(replies == null) replies = new ArrayList<>();
+        replies.add(comment);
+    }
+
     public boolean isSecret(){
         return isSecret;
     }
@@ -33,5 +53,9 @@ public class Piece extends BaseEntity{
         this.title = form.getTitle();
         this.content = form.getContent();
         this.isSecret = form.isSecret();
+    }
+    public void writtenBy (Member member){
+        this.setMember(member);
+        member.addPiece(this);
     }
 }
