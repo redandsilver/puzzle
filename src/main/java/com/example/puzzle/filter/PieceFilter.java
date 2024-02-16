@@ -25,9 +25,7 @@ public class PieceFilter extends OncePerRequestFilter {
         String name = SecurityContextHolder.getContext().getAuthentication().getName();
         log.info("name : {}",name);
         Long pieceId = Long.valueOf(request.getParameter("pieceId"));
-        if(!filterService.isPieceWriter(name, pieceId)){
-            throw new CustomException(ErrorCode.WRONG_ACCESS);
-        }
+        filterService.validatePiecePermission(name, pieceId);
         filterChain.doFilter(request,response);
     }
 

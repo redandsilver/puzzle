@@ -16,20 +16,20 @@ public class CommentController {
     private final CommentService commentService;
     @PostMapping("/create")
     public ResponseEntity<String> createComment (
-            Principal principal, CommentForm form){
+            Principal principal, @RequestBody CommentForm form){
         CommentDto commentDto = commentService.createComment(principal.getName(),form);
         return ResponseEntity.ok(commentDto.getWriterName()+" 님이 댓글을 남겼습니다.");
     }
-    @PutMapping("/edit/{comment_id}")
+    @PutMapping("/edit")
     public ResponseEntity<String> editComment  (
-            @PathVariable Long commentId, @RequestBody CommentForm form){
+            @RequestParam Long commentId, @RequestBody CommentForm form){
         commentService.editComment(commentId,form);
         return ResponseEntity.ok("수정되었습니다.");
     }
 
-    @DeleteMapping("/delete/{comment_id}")
+    @DeleteMapping("/delete")
     public ResponseEntity<String> deleteComment (
-           @PathVariable Long commentId){
+           @RequestParam Long commentId){
         commentService.deleteComment(commentId);
         return ResponseEntity.ok("삭제되었습니다.");
     }

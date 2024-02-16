@@ -5,6 +5,7 @@ import lombok.*;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class PieceForm{
     private String title;

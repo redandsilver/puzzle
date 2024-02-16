@@ -16,7 +16,6 @@ import javax.transaction.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class PieceService {
     private final PieceRepository pieceRepository;
     private final MemberRepository memberRepository;
@@ -30,6 +29,7 @@ public class PieceService {
         return PieceDto.from(piece);
     }
     @Transactional
+
     public PieceDto editPiece(Long id, PieceForm form) {
         Piece piece = pieceRepository.findById(id).orElseThrow(
                 ()-> new CustomException(ErrorCode.PIECE_NOT_EXIST)
@@ -39,7 +39,6 @@ public class PieceService {
     }
 
     public void deletePiece(Long id) {
-
         pieceRepository.deleteById(id);
     }
 }

@@ -18,8 +18,8 @@ public class FilterConfig {
     public FilterRegistrationBean<Filter> registerPieceFilter(){
         FilterRegistrationBean<Filter> bean = new FilterRegistrationBean<>();
         bean.setFilter(pieceFilter);
-        bean.addUrlPatterns("/piece/edit");
-        bean.addUrlPatterns("/piece/delete");
+        bean.addUrlPatterns("/piece/edit/*");
+        bean.addUrlPatterns("/piece/delete/*");
         bean.setOrder(1);
         return bean;
     }
@@ -28,8 +28,8 @@ public class FilterConfig {
     public FilterRegistrationBean<Filter> registerCommentFilter(){
         FilterRegistrationBean<Filter> bean = new FilterRegistrationBean<>();
         bean.setFilter(commentFilter);
-        bean.addUrlPatterns("/*/comment/edit");
-        bean.addUrlPatterns("/*/comment/delete");
+        bean.addUrlPatterns("/comment/edit/*");
+        bean.addUrlPatterns("/comment/delete/*");
         bean.setOrder(2);
         return bean;
     }

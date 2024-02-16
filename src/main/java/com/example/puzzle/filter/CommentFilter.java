@@ -21,16 +21,13 @@ import java.io.IOException;
 public class CommentFilter extends OncePerRequestFilter {
    private final FilterService filterService;
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         String name = SecurityContextHolder.getContext().getAuthentication().getName();
         log.info("name : {}",name);
         Long commentId = Long.valueOf(request.getParameter("commentId"));
         String method = request.getMethod();
-
-        if(!filterService.isCommentWriterOrPieceWriter(method,name,commentId)){
-            throw new CustomException(ErrorCode.WRONG_ACCESS);
-        }
-
+        filterService.validateCommentPermission(name,method,commentId);
         filterChain.doFilter(request,response);
     }
 
