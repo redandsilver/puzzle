@@ -5,14 +5,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-
 @Getter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CommentForm {
+@Builder
+public class PuzzlePieceOrderForm {
 
-  private Long parentId = null;
-  private String content;
+  private int indexOrder;
   private Long pieceId;
 }

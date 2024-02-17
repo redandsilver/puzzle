@@ -9,12 +9,15 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 public class PieceDto {
-    private String title;
-    private String writerName;
 
-    public static PieceDto from (Piece piece){
-        return new PieceDto(
-                piece.getTitle(),
-                piece.getMember().getNickname());
-    }
+  private Long pieceId;
+  private String title;
+  private String writerName;
+
+  public static PieceDto from(Piece piece) {
+    return new PieceDto(
+        piece.getId(),
+        piece.getTitle(),
+        piece.getMember().getNickname());
+  }
 }
