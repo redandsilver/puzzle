@@ -46,6 +46,7 @@ public class Member extends BaseEntity {
   @ElementCollection(fetch = FetchType.LAZY)
   private List<Long> pieceAuthorites;
 
+
   public void addRole(String role) {
     roles.add(role);
   }
@@ -66,5 +67,9 @@ public class Member extends BaseEntity {
 
   public boolean verified() {
     return isVerify;
+  }
+
+  public void uploadProfileImage(String url) {
+    this.profileImageUrl = url;
   }
 }

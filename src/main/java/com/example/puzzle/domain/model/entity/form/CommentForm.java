@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CommentForm {
 
-  private Long parentId = null;
+  private Long parentId;
   private String content;
   private Long pieceId;
 }

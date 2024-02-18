@@ -23,10 +23,10 @@ public class CommentService {
   private final PieceRepository pieceRepository;
   private final AlarmService alarmService;
 
-
+  @Transactional
   public CommentDto createComment(String name, CommentForm form) {
     Piece piece = pieceRepository.findById(form.getPieceId()).orElseThrow(
-        () -> new CustomException(ErrorCode.COMMENT_NOT_EXIST)
+        () -> new CustomException(ErrorCode.PIECE_NOT_EXIST)
     );
     Comment parentComment = null;
     if (form.getParentId() != 0) {
