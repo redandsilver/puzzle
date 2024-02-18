@@ -1,6 +1,5 @@
-package com.example.puzzle.domain.member;
+package com.example.puzzle.domain.dto;
 
-import com.example.puzzle.domain.model.constants.Role;
 import com.example.puzzle.domain.model.entity.Member;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,7 +21,6 @@ public class MemberDto implements UserDetails {
 
     public static MemberDto from (Member member){
         List<String> roles = new ArrayList<>(member.getRoles());
-        roles.add("ROLE_MEMBER");
         return new MemberDto(member.getId(), member.getNickname(), roles);
     }
 

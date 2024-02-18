@@ -1,8 +1,7 @@
 package com.example.puzzle.service;
 
-import com.example.puzzle.domain.member.MemberDto;
-import com.example.puzzle.domain.model.Auth;
 import com.example.puzzle.domain.model.constants.Role;
+import com.example.puzzle.domain.model.entity.form.Auth;
 import com.example.puzzle.domain.model.entity.LogoutToken;
 import com.example.puzzle.domain.model.entity.Member;
 import com.example.puzzle.domain.model.entity.RefreshToken;
@@ -18,15 +17,11 @@ import net.nurigo.sdk.message.model.Message;
 import net.nurigo.sdk.message.request.SingleMessageSendingRequest;
 import net.nurigo.sdk.message.response.SingleMessageSentResponse;
 import net.nurigo.sdk.message.service.DefaultMessageService;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import javax.transaction.Transactional;
-import java.util.Date;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -34,7 +29,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AuthService implements UserDetailsService {
+public class AuthService  {
     private final MemberRepository memberRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final LogoutTokenRepository logoutTokenRepository;
@@ -86,6 +81,7 @@ public class AuthService implements UserDetailsService {
             throw new CustomException(ErrorCode.EXPIRED_CODE);
         }
         member.setVerify(true);
+        member.addRole(String.valueOf(Role.ROLE_MEMBER));
     }
 
     public Member authenticate(Auth.SignIn form) {
@@ -100,26 +96,11 @@ public class AuthService implements UserDetailsService {
         return user;
     }
 
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.info(username);
-        return MemberDto.from(this.memberRepository.findByNickname(username)
-                .orElseThrow(() ->
-                        new UsernameNotFoundException("couldn't find user -> "+username)));
-    }
-
     public void logout(String token) {
         log.info(token);
         RefreshToken refreshToken = refreshTokenRepository.findByAccessToken(token)
                 .orElseThrow(()-> new CustomException(ErrorCode.TOKEN_NOT_FOUND));
         refreshTokenRepository.deleteById(refreshToken.getRefreshToken());
         logoutTokenRepository.save(new LogoutToken(UUID.randomUUID().toString(),token));
-    }
-
-    public void test(String token) {
-        RefreshToken refreshToken = refreshTokenRepository.findByAccessToken(token)
-                .orElseThrow(()-> new CustomException(ErrorCode.TOKEN_NOT_FOUND));
-
     }
 }

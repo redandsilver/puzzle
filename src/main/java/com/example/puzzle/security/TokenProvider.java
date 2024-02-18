@@ -3,8 +3,12 @@ package com.example.puzzle.security;
 import com.example.puzzle.domain.model.entity.Member;
 import com.example.puzzle.domain.model.entity.RefreshToken;
 import com.example.puzzle.domain.repository.LogoutTokenRepository;
+import com.example.puzzle.domain.repository.MemberRepository;
 import com.example.puzzle.domain.repository.RefreshTokenRepository;
+import com.example.puzzle.exception.CustomException;
+import com.example.puzzle.exception.ErrorCode;
 import com.example.puzzle.service.AuthService;
+import com.example.puzzle.service.MemberService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -28,9 +32,11 @@ public class TokenProvider {
     private static final long TOKEN_EXPIRE_TIME = 1000*60*30; // 30 min
     private static final String KEY_ROLES = "roles";
 
-    private final AuthService authService;
-    private final RefreshTokenRepository refreshTokenRespository;
+    private final MemberService memberService;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final LogoutTokenRepository logoutTokenRepository;
+
+    private final MemberRepository memberRepository;
 
     @Value("{spring.jwt.secret}")
     private String secretKey;
@@ -59,12 +65,12 @@ public class TokenProvider {
     public void generateRefreshToken(String accessToken, Long memberId){
         RefreshToken token =
                 new RefreshToken(UUID.randomUUID().toString(),accessToken,memberId);
-        refreshTokenRespository.save(token);
+        refreshTokenRepository.save(token);
     }
 
     public Authentication getAuthentication(String jwt){
         UserDetails userDetails
-                = this.authService.loadUserByUsername(this.getUsername(jwt));
+                = this.memberService.loadUserByUsername(this.getUsername(jwt));
 
         return new UsernamePasswordAuthenticationToken(
                 userDetails,"",userDetails.getAuthorities());
@@ -75,10 +81,13 @@ public class TokenProvider {
         return this.parseClaims(token).getSubject();
     }
 
-    public boolean validateToken(String token){
+    public String checkAccessToken(String token){
         var claims = this.parseClaims(token);
         var now = new Date();
-        return !claims.getExpiration().before(now);
+        if(claims.getExpiration().before(now)){
+            token = checkRefreshToken(token);
+        }
+        return token;
     }
 
     public Claims parseClaims(String token){
@@ -91,12 +100,19 @@ public class TokenProvider {
         }
 
     }
+    public boolean isLogout(String token) {
 
-    public Date getExpiration(String token) {
-        return this.parseClaims(token).getExpiration();
+        return logoutTokenRepository.findByAccessToken(token).isPresent();
     }
 
-    public boolean isLogout(String token) {
-        return logoutTokenRepository.findByAccessToken(token).isPresent();
+    public String checkRefreshToken(String token) {
+        RefreshToken refreshToken = refreshTokenRepository.findByAccessToken(token)
+                .orElseThrow(()-> new CustomException(ErrorCode.TOKEN_EXPIRED));
+        Member member = memberRepository.findById(refreshToken.getMemberId())
+                .orElseThrow(()-> new CustomException(ErrorCode.USER_NOT_FOUND));
+        // 토큰 재발급
+        String newToken = generateToken(member.getNickname(),member.getRoles());
+        refreshTokenRepository.save(new RefreshToken(refreshToken.getRefreshToken(),token,refreshToken.getMemberId()));
+        return newToken;
     }
 }

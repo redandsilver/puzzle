@@ -1,72 +1,77 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '2.6.3'
-	id 'io.spring.dependency-management' version '1.1.4'
+    id 'java'
+    id 'org.springframework.boot' version '2.6.3'
+    id 'io.spring.dependency-management' version '1.1.4'
 }
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	sourceCompatibility = '11'
+    sourceCompatibility = '11'
 }
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 ext {
-	set('springCloudVersion', "2021.0.3")
+    set('springCloudVersion', "2021.0.3")
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
-	implementation 'javax.xml.bind:jaxb-api:2.3.1'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'javax.xml.bind:jaxb-api:2.3.1'
 
-	implementation 'org.junit.jupiter:junit-jupiter:5.8.1'
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'com.h2database:h2'
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-	// embedded redis
-	implementation('it.ozimov:embedded-redis:0.7.3') {
-		exclude group: "org.slf4j", module: "slf4j-simple"
-	}
-	// 데이터 변경 이력을 관리하는 기능을 제공
-	implementation 'org.springframework.data:spring-data-envers'
-	// 랜덤코드 만드는 기능
-	implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'org.junit.jupiter:junit-jupiter:5.8.1'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'com.h2database:h2'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-	implementation 'mysql:mysql-connector-java'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	// swagger
-	implementation 'org.springdoc:springdoc-openapi-ui:1.6.11'
-	// coolSMS
-	implementation 'net.nurigo:sdk:4.2.7'
-	//test
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'com.h2database:h2'
+    // json
+    implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
+
+    // embedded redis
+    implementation('it.ozimov:embedded-redis:0.7.3') {
+        exclude group: "org.slf4j", module: "slf4j-simple"
+    }
+    // 데이터 변경 이력을 관리하는 기능을 제공
+    implementation 'org.springframework.data:spring-data-envers'
+    // 랜덤코드 만드는 기능
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+
+    implementation 'mysql:mysql-connector-java'
+    // swagger
+    implementation 'org.springdoc:springdoc-openapi-ui:1.6.11'
+    // coolSMS
+    implementation 'net.nurigo:sdk:4.2.7'
+
+    // trie algorithmn
+    implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.3'
+    //test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'com.h2database:h2'
 }
 
 dependencyManagement {
-	imports {
-		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-	}
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
 }
 
 tasks.named('bootBuildImage') {
-	builder = 'paketobuildpacks/builder-jammy-base:latest'
+    builder = 'paketobuildpacks/builder-jammy-base:latest'
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }

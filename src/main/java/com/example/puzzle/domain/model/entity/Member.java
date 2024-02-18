@@ -1,16 +1,22 @@
 package com.example.puzzle.domain.model.entity;
 
-import lombok.*;
-import org.hibernate.envers.AuditOverride;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.envers.AuditOverride;
 
 @Entity
 @Getter
@@ -20,26 +26,45 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AuditOverride(forClass = BaseEntity.class)
 public class Member extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "member_id", nullable = false)
-    private Long id;
-    private String phoneNumber;
-    private String nickname;
-    private String password;
-    private String profileImageUrl;
-    private String verificationCode;
-    private LocalDateTime verifyExpiredAt;
-    private boolean isVerify;
-    @ElementCollection(fetch = FetchType.EAGER)
-    private List<String> roles;
 
-    public void addRole(String role){
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "member_id", nullable = false)
+  private Long id;
+  private String phoneNumber;
+  private String nickname;
+  private String password;
+  private String profileImageUrl;
+  private String verificationCode;
+  private LocalDateTime verifyExpiredAt;
+  private boolean isVerify;
+  @OneToMany(mappedBy = "member")
+  private List<Piece> pieces;
 
-        roles.add(role);
+  @ElementCollection(fetch = FetchType.EAGER)
+  private List<String> roles;
+  @ElementCollection(fetch = FetchType.LAZY)
+  private List<Long> pieceAuthorites;
+
+  public void addRole(String role) {
+    roles.add(role);
+  }
+
+  public void addPieceAuthority(Long pieceId) {
+    if (pieceAuthorites == null) {
+      pieces = new ArrayList<>();
     }
+    pieceAuthorites.add(pieceId);
+  }
 
-    public boolean verified(){
-        return isVerify;
+  public void addPiece(Piece piece) {
+    if (pieces == null) {
+      pieces = new ArrayList<>();
     }
+    pieces.add(piece);
+  }
+
+  public boolean verified() {
+    return isVerify;
+  }
 }
