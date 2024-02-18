@@ -14,4 +14,6 @@ public interface PuzzlePieceOrderRepository extends JpaRepository<PuzzlePieceOrd
   Optional<List<PuzzlePieceOrder>> findAllByPuzzleId(Long puzzleId);
 
   Optional<PuzzlePieceOrder> findByPuzzleIdAndPieceId(Long puzzleId, Long pieceId);
+
+  Optional<Object> findByPuzzleIdAndOrderIndex(Long puzzleId, int indexOrder);
 }

@@ -25,7 +25,9 @@ public enum ErrorCode {
   COMMENT_NOT_EXIST(HttpStatus.BAD_REQUEST, "없는 댓글입니다."),
   WRONG_ACCESS(HttpStatus.BAD_REQUEST, "잘못된 접근입니다."),
   NO_PERMISSION(HttpStatus.BAD_REQUEST, "권한이 없습니다."),
-  ALREADY_YOUR_PIECE(HttpStatus.BAD_REQUEST, "자신의 조각은 떼올 수 없습니다.");
+  ALREADY_YOUR_PIECE(HttpStatus.BAD_REQUEST, "자신의 조각은 떼올 수 없습니다."),
+  SERVER_DISCONNECT(HttpStatus.BAD_REQUEST, "서버와의 연결이 끊겼습니다."),
+  SSE_ERROR(HttpStatus.BAD_REQUEST, "SSE 오류가 발생하였습니다.");
 
   private final HttpStatus httpStatus;
   private final String message;

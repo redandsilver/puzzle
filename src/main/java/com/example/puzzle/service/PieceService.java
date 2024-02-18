@@ -1,5 +1,7 @@
 package com.example.puzzle.service;
 
+import com.example.puzzle.alarm.AlarmService;
+import com.example.puzzle.alarm.message.Alarm;
 import com.example.puzzle.domain.dto.PieceDto;
 import com.example.puzzle.domain.model.entity.Member;
 import com.example.puzzle.domain.model.entity.Piece;
@@ -19,6 +21,7 @@ public class PieceService {
 
   private final PieceRepository pieceRepository;
   private final MemberRepository memberRepository;
+  private final AlarmService alarmService;
 
   @Transactional
   public PieceDto createPiece(String name, PieceForm form) {
@@ -51,8 +54,10 @@ public class PieceService {
     Piece piece = pieceRepository.findById(pieceId).orElseThrow(
         () -> new CustomException(ErrorCode.PIECE_NOT_EXIST)
     );
-    if (!piece.isSecret() && !member.getNickname().equals(piece.getMember().getNickname())) {
+    if (!piece.isSecret() || !member.getNickname().equals(piece.getMember().getNickname())) {
       member.addPieceAuthority(pieceId);
     }
+    alarmService.sendPieceAlarm(piece.getMember().getNickname(),
+        Alarm.PIECE_TAKE_ALARM.formatMessage(name));
   }
 }

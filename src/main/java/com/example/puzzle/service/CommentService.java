@@ -1,5 +1,7 @@
 package com.example.puzzle.service;
 
+import com.example.puzzle.alarm.AlarmService;
+import com.example.puzzle.alarm.message.Alarm;
 import com.example.puzzle.domain.dto.CommentDto;
 import com.example.puzzle.domain.model.entity.Comment;
 import com.example.puzzle.domain.model.entity.Piece;
@@ -19,14 +21,16 @@ public class CommentService {
 
   private final CommentRepository commentRepository;
   private final PieceRepository pieceRepository;
+  private final AlarmService alarmService;
 
 
   public CommentDto createComment(String name, CommentForm form) {
     Piece piece = pieceRepository.findById(form.getPieceId()).orElseThrow(
         () -> new CustomException(ErrorCode.COMMENT_NOT_EXIST)
     );
+    Comment parentComment = null;
     if (form.getParentId() != 0) {
-      Comment comment = commentRepository.findById(form.getParentId()).orElseThrow(
+      parentComment = commentRepository.findById(form.getParentId()).orElseThrow(
           () -> new CustomException(ErrorCode.COMMENT_NOT_EXIST)
       );
     }
@@ -34,6 +38,15 @@ public class CommentService {
     comment.commentOn(piece);
     comment.commentBy(name);
     commentRepository.save(Comment.from(form));
+
+    String writerName = piece.getMember().getNickname();
+    if (parentComment == null) {
+      alarmService.sendCommentAlarm(name, writerName, Alarm.COMMENT_ALARM.formatMessage(name));
+    } else {
+      if (!parentComment.getWritername().equals(name)) {
+        alarmService.sendCommentAlarm(name, writerName, Alarm.COMMENT_ALARM.formatMessage(name));
+      }
+    }
 
     return CommentDto.from(comment);
   }
