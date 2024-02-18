@@ -1,6 +1,5 @@
 package com.example.puzzle.domain.model.entity;
 
-import com.example.puzzle.domain.model.entity.form.PuzzlePieceOrderForm;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -44,6 +43,15 @@ public class PuzzlePieceOrder extends BaseEntity {
   @Column(name = "order_index")
   private int orderIndex;
 
+  public static PuzzlePieceOrder from(Puzzle puzzle, Piece piece, int orderIndex) {
+    return PuzzlePieceOrder.builder()
+        .puzzle(puzzle)
+        .piece(piece)
+        .orderIndex(orderIndex)
+        .build();
+  }
+
+
   public void makePuzzle(Puzzle puzzle, Piece piece) {
     this.setPuzzle(puzzle);
     this.setPiece(piece);
@@ -51,9 +59,9 @@ public class PuzzlePieceOrder extends BaseEntity {
     piece.addPuzzle(this);
   }
 
-  public void update(Puzzle puzzle, Piece piece, PuzzlePieceOrderForm form) {
+  public void putPieceIntoPuzzle(Puzzle puzzle, Piece piece, int orderIndex) {
     this.setPuzzle(puzzle);
     this.setPiece(piece);
-    this.setOrderIndex(form.getIndexOrder());
+    this.setOrderIndex(orderIndex);
   }
 }

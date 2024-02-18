@@ -17,13 +17,13 @@ public class SearchController {
 
   private final SearchService searchService;
 
-  @GetMapping
+  @GetMapping("/pieces")
   public ResponseEntity<PieceDto> getPieceById(@RequestParam Long pieceId) {
     return ResponseEntity.ok(this.searchService.getPieceById(pieceId));
 
   }
 
-  @GetMapping
+  @GetMapping("/puzzles")
   public ResponseEntity<PuzzleDto> getPuzzleById(@RequestParam Long puzzleId) {
     return ResponseEntity.ok(this.searchService.getPuzzleById(puzzleId));
 

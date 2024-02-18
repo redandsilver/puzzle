@@ -30,7 +30,8 @@ public class PieceController {
   }
 
   @PutMapping("/edit")
-  public ResponseEntity<String> editPiece(@RequestParam Long pieceId, @RequestBody PieceForm form) {
+  public ResponseEntity<String> editPiece(Principal principal, @RequestParam Long pieceId,
+      @RequestBody PieceForm form) {
     PieceDto pieceDto = pieceService.editPiece(pieceId, form);
     return ResponseEntity.ok(pieceDto.getTitle() + " 수정되었습니다.");
   }
@@ -39,5 +40,11 @@ public class PieceController {
   public ResponseEntity<String> deletePiece(@RequestParam Long pieceId) {
     pieceService.deletePiece(pieceId);
     return ResponseEntity.ok("삭제되었습니다.");
+  }
+
+  @PutMapping("/take")
+  public ResponseEntity<String> takePiece(Principal principal, @RequestParam Long pieceId) {
+    pieceService.takePiece(principal.getName(), pieceId);
+    return ResponseEntity.ok("조각을 떼왔습니다.");
   }
 }

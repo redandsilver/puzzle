@@ -20,9 +20,12 @@ public enum ErrorCode {
   NOT_EXIST_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "휴대폰 번호를 확인 해주세요."),
   PIECE_NOT_EXIST(HttpStatus.BAD_REQUEST, "없는 조각입니다."),
   PUZZLE_NOT_EXIST(HttpStatus.BAD_REQUEST, "없는 퍼즐입니다."),
-  PIECE_ORDER_NOT_EXIST(HttpStatus.BAD_REQUEST, "조각 순서를 확인해주세요."),
+  WRONG_PIECE_ORDER(HttpStatus.BAD_REQUEST, "조각 순서를 확인해주세요."),
+  PIECE_ORDER_NOT_EXIST(HttpStatus.BAD_REQUEST, "조각 순서가 없습니다."),
   COMMENT_NOT_EXIST(HttpStatus.BAD_REQUEST, "없는 댓글입니다."),
-  WRONG_ACCESS(HttpStatus.BAD_REQUEST, "잘못된 접근입니다.");
+  WRONG_ACCESS(HttpStatus.BAD_REQUEST, "잘못된 접근입니다."),
+  NO_PERMISSION(HttpStatus.BAD_REQUEST, "권한이 없습니다."),
+  ALREADY_YOUR_PIECE(HttpStatus.BAD_REQUEST, "자신의 조각은 떼올 수 없습니다.");
 
   private final HttpStatus httpStatus;
   private final String message;

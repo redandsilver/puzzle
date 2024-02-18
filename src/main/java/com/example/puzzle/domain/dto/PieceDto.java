@@ -13,11 +13,13 @@ public class PieceDto {
   private Long pieceId;
   private String title;
   private String writerName;
+  private String content;
 
   public static PieceDto from(Piece piece) {
     return new PieceDto(
         piece.getId(),
         piece.getTitle(),
-        piece.getMember().getNickname());
+        piece.getMember().getNickname(),
+        piece.getContent());
   }
 }

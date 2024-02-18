@@ -43,6 +43,7 @@ public class Puzzle extends BaseEntity {
   }
 
   public void addPiece(PuzzlePieceOrder puzzlePieceOrder) {
+
     if (puzzlePieceOrders == null) {
       puzzlePieceOrders = new ArrayList<>();
     }
