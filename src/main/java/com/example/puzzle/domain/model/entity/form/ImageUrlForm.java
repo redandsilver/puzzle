@@ -9,9 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PieceForm {
+public class ImageUrlForm {
 
-  private String title;
-  private String content;
-  private boolean isSecret;
+  private String fileName;
+  private String url;
 }

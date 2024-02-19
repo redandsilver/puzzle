@@ -8,6 +8,7 @@ import com.example.puzzle.domain.repository.MemberRepository;
 import com.example.puzzle.exception.CustomException;
 import com.example.puzzle.exception.ErrorCode;
 import java.io.IOException;
+import java.util.UUID;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,12 +43,18 @@ public class MemberService implements UserDetailsService {
     Member member = memberRepository.findByNickname(name).orElseThrow(
         () -> new CustomException(ErrorCode.USER_NOT_FOUND)
     );
-    String imageName = "profile/" + name;
+    String imageName = makefileName(name, "pro/");
     ObjectMetadata objectMetadata = new ObjectMetadata();
     objectMetadata.setContentLength(multipartFile.getInputStream().available());
     amazonS3Client.putObject(bucket, imageName, multipartFile.getInputStream(), objectMetadata);
     member.uploadProfileImage(amazonS3Client.getUrl(bucket, imageName).toString());
 
     return MemberDto.from(member);
+  }
+
+  private String makefileName(String originalFilename, String folder) {
+    return folder
+        + UUID.randomUUID().toString()
+        + originalFilename;
   }
 }
