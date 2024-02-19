@@ -52,8 +52,8 @@ public class PieceController {
 
   @DeleteMapping("/{pieceId}/delete")
   public ResponseEntity<String> deleteImage(Principal principal, @PathVariable Long pieceId,
-      @RequestParam String imageUrl) {
-    pieceService.deleteImage(pieceId, imageUrl);
+      @RequestParam String fileName) {
+    pieceService.deleteImage(pieceId, fileName);
     return ResponseEntity.ok("사진이 삭제되었습니다.");
   }
 

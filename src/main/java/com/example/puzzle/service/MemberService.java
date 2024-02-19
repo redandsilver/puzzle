@@ -1,7 +1,5 @@
 package com.example.puzzle.service;
 
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.example.puzzle.domain.dto.MemberDto;
 import com.example.puzzle.domain.model.entity.Member;
 import com.example.puzzle.domain.repository.MemberRepository;
@@ -27,7 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class MemberService implements UserDetailsService {
 
   private final MemberRepository memberRepository;
-  private final AmazonS3Client amazonS3Client;
+  private final ImageService imageService;
   @Value("${cloud.aws.s3.bucket}")
   private String bucket;
 
@@ -43,11 +41,9 @@ public class MemberService implements UserDetailsService {
     Member member = memberRepository.findByNickname(name).orElseThrow(
         () -> new CustomException(ErrorCode.USER_NOT_FOUND)
     );
-    String imageName = makefileName(name, "pro/");
-    ObjectMetadata objectMetadata = new ObjectMetadata();
-    objectMetadata.setContentLength(multipartFile.getInputStream().available());
-    amazonS3Client.putObject(bucket, imageName, multipartFile.getInputStream(), objectMetadata);
-    member.uploadProfileImage(amazonS3Client.getUrl(bucket, imageName).toString());
+    String fileName = imageService.makefileName(multipartFile.getOriginalFilename());
+    String awsUrl = imageService.uploadImage(multipartFile, fileName);
+    member.uploadProfileImage(awsUrl);
 
     return MemberDto.from(member);
   }

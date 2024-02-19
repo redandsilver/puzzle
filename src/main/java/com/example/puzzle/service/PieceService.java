@@ -1,7 +1,5 @@
 package com.example.puzzle.service;
 
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.example.puzzle.alarm.AlarmService;
 import com.example.puzzle.alarm.message.Alarm;
 import com.example.puzzle.domain.dto.PieceDto;
@@ -14,10 +12,7 @@ import com.example.puzzle.domain.repository.MemberRepository;
 import com.example.puzzle.domain.repository.PieceRepository;
 import com.example.puzzle.exception.CustomException;
 import com.example.puzzle.exception.ErrorCode;
-import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +30,7 @@ public class PieceService {
   private final MemberRepository memberRepository;
   private final ImageUrlRepository imageUrlRepository;
   private final AlarmService alarmService;
-  private final AmazonS3Client amazonS3Client;
+  private final ImageService imageService;
 
   @Value("${cloud.aws.s3.bucket}")
   private String bucket;
@@ -56,33 +51,22 @@ public class PieceService {
         () -> new CustomException(ErrorCode.PIECE_NOT_EXIST)
     );
     multipartFiles.forEach(multipartFile -> {
-      String imageName = makefileName(Objects.requireNonNull(multipartFile.getOriginalFilename()));
-      ObjectMetadata objectMetadata = new ObjectMetadata();
-      try {
-        objectMetadata.setContentLength(multipartFile.getInputStream().available());
-        amazonS3Client.putObject(bucket, imageName, multipartFile.getInputStream(), objectMetadata);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-      ImageUrl imageUrl = ImageUrl.from(imageName,
-          amazonS3Client.getUrl(bucket, imageName).toString());
+      String fileName = imageService.makefileName(multipartFile.getOriginalFilename());
+      String awsUrl = imageService.uploadImage(multipartFile, fileName);
+      ImageUrl imageUrl = ImageUrl.from(fileName, awsUrl);
       imageUrl.addImageToPiece(piece);
       imageUrlRepository.save(imageUrl);
     });
   }
 
-  private String makefileName(String originalFilename) {
-    return "piece/"
-        + UUID.randomUUID().toString()
-        + originalFilename;
-  }
-
+  @Transactional
   public void deleteImage(Long pieceId, String fileName) {
     Piece piece = pieceRepository.findById(pieceId).orElseThrow(
         () -> new CustomException(ErrorCode.PIECE_NOT_EXIST)
     );
+
+    imageService.deleteImageObject(fileName);
     imageUrlRepository.deleteByFileName(fileName);
-    amazonS3Client.deleteObject(bucket, fileName);
   }
 
 
