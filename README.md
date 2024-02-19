@@ -1,4 +1,6 @@
 # Puzzle
+![Screenshot 2024-02-19 at 9 25 42 PM](https://github.com/redandsilver/puzzle/assets/129943670/4f2333d5-131e-42a4-aee8-c04ff2ead5a7)
+<br/>
 블로그 플랫폼 퍼즐입니다. <br/>
 퍼즐에서는 짧은 글(500자)을 쓰고 이것을 조각이라고 합니다. <br/>
 조각을 작성하거나, 다른사람들의 조각을 구경해보세요. <br/>
@@ -74,7 +76,6 @@ ab를 입력하면 abc, acer 등 ab가 포함된 것들이 조회된다.
 - Docker
 - Redis
 - SSE
-- Elastic Search
 
 # ERD
 [ERD](https://www.erdcloud.com/d/Mrm5euvBFWaHq6Djd)
