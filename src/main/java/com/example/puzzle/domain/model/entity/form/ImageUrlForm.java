@@ -5,14 +5,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-
 @Getter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CommentForm {
+@Builder
+public class ImageUrlForm {
 
-  private Long parentId;
-  private String content;
-  private Long pieceId;
+  private String fileName;
+  private String url;
 }

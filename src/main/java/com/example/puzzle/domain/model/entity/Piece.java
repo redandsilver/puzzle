@@ -49,7 +49,8 @@ public class Piece extends BaseEntity {
 
   @OneToMany(mappedBy = "piece", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private List<PuzzlePieceOrder> puzzlePieceOrders;
-
+  @OneToMany(mappedBy = "piece", cascade = CascadeType.REMOVE)
+  private List<ImageUrl> imageUrls;
 
   public static Piece from(PieceForm form) {
     return Piece.builder()
@@ -57,6 +58,13 @@ public class Piece extends BaseEntity {
         .content(form.getContent())
         .isSecret(form.isSecret())
         .build();
+  }
+
+  public void addImageUrl(ImageUrl url) {
+    if (imageUrls == null) {
+      imageUrls = new ArrayList<>();
+    }
+    imageUrls.add(url);
   }
 
   public void addComment(Comment comment) {
@@ -73,10 +81,6 @@ public class Piece extends BaseEntity {
     puzzlePieceOrders.add(puzzlePieceOrder);
   }
 
-  public void updatePuzzle(PuzzlePieceOrder puzzlePieceOrder) {
-
-  }
-
   public boolean isSecret() {
     return isSecret;
   }
@@ -91,4 +95,5 @@ public class Piece extends BaseEntity {
     this.setMember(member);
     member.addPiece(this);
   }
+
 }

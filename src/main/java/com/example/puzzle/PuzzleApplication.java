@@ -11,9 +11,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing
 @EnableAutoConfiguration
 public class PuzzleApplication {
-	public static void main(String[] args) {
 
-		SpringApplication.run(PuzzleApplication.class, args);
-	}
+  public static void main(String[] args) {
+
+    SpringApplication.run(PuzzleApplication.class, args);
+  }
 
 }

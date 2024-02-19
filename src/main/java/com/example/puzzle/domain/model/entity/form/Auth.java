@@ -1,33 +1,38 @@
 package com.example.puzzle.domain.model.entity.form;
 
 import com.example.puzzle.domain.model.entity.Member;
-import lombok.Data;
-
 import java.util.ArrayList;
-import java.util.List;
+import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
 
 
 public class Auth {
-    @Data
-    public static class SignIn{
-        private String nickname;
-        private String password;
-    }
-    @Data
-    public static class SignUp{
-        private String nickname;
-        private String password;
-        private String phoneNumber;
-        private String profileImageUrl;
 
-        public Member toEntity(String encodedPassword){
-            return Member.builder()
-                    .nickname(this.nickname)
-                    .password(encodedPassword)
-                    .phoneNumber(this.phoneNumber)
-                    .profileImageUrl(this.profileImageUrl)
-                    .roles(new ArrayList<String>())
-                    .build();
-        }
+
+  @Data
+  public static class SignIn {
+
+    private String nickname;
+    private String password;
+  }
+
+  @Data
+  public static class SignUp {
+
+    @Value("${default.image}")
+    private String profileImage;
+    private String nickname;
+    private String password;
+    private String phoneNumber;
+
+    public Member toEntity(String encodedPassword) {
+      return Member.builder()
+          .nickname(this.nickname)
+          .password(encodedPassword)
+          .phoneNumber(this.phoneNumber)
+          .profileImageUrl(this.profileImage)
+          .roles(new ArrayList<String>())
+          .build();
     }
+  }
 }
