@@ -2,6 +2,8 @@ package com.example.puzzle.service;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.example.puzzle.exception.CustomException;
+import com.example.puzzle.exception.ErrorCode;
 import java.io.IOException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +25,7 @@ public class ImageService {
       objectMetadata.setContentLength(multipartFile.getInputStream().available());
       amazonS3Client.putObject(bucket, key, multipartFile.getInputStream(), objectMetadata);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new CustomException(ErrorCode.TOO_LARGE);
     }
     return amazonS3Client.getUrl(bucket, key).toString();
   }

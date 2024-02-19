@@ -27,7 +27,8 @@ public enum ErrorCode {
   NO_PERMISSION(HttpStatus.BAD_REQUEST, "권한이 없습니다."),
   ALREADY_YOUR_PIECE(HttpStatus.BAD_REQUEST, "자신의 조각은 떼올 수 없습니다."),
   SERVER_DISCONNECT(HttpStatus.BAD_REQUEST, "서버와의 연결이 끊겼습니다."),
-  SSE_ERROR(HttpStatus.BAD_REQUEST, "SSE 오류가 발생하였습니다.");
+  SSE_ERROR(HttpStatus.BAD_REQUEST, "SSE 오류가 발생하였습니다."),
+  TOO_LARGE(HttpStatus.BAD_REQUEST, "사진 용량이 너무 큽니다.");
 
   private final HttpStatus httpStatus;
   private final String message;
